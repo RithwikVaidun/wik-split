@@ -1,18 +1,18 @@
 <template>
   <div>
-    <p>Original Number: {{ originalNumber }}</p>
-    <p>Square of the Number: {{ squaredNumber }}</p>
-    <p>Reversed Message: {{ reversedMessage }}</p>
-
-    <button @click="increaseNumber">Increase Number</button>
     <v-text-field
-      v-model="newName"
-      placeholder="Enter a name"
-      @input="updateHeaders"
-    />
+      v-model="newColumnName"
+      label="Enter Column Name"
+    ></v-text-field>
+    <v-btn @click="addColumnName" color="primary">Add Name</v-btn>
 
-    <!-- Add v-data-table to display data -->
-    <v-data-table :headers="tableHeaders" :items="tableData"></v-data-table>
+    <v-data-table
+      v-model:items-per-page="itemsPerPage"
+      :headers="headers"
+      :items="desserts"
+      item-value="name"
+      class="elevation-1"
+    ></v-data-table>
   </div>
 </template>
 
@@ -20,13 +20,21 @@
 export default {
   data() {
     return {
-      originalNumber: 5,
-      message: "Hello, Vue!",
-      newName: "", // For inputting new names
-      tableHeaders: [
-        { text: "Item", value: "name" }, // First column as "Item"
+      itemsPerPage: 5,
+      headers: [
+        {
+          title: "Dessert (100g serving)",
+          align: "start",
+          sortable: false,
+          key: "name",
+        },
+        { title: "Calories", align: "end", key: "calories" },
+        { title: "Fat (g)", align: "end", key: "fat" },
+        { title: "Carbs (g)", align: "end", key: "carbs" },
+        { title: "Protein (g)", align: "end", key: "protein" },
+        { title: "Iron (%)", align: "end", key: "iron" },
       ],
-      tableData: [
+      desserts: [
         {
           name: "Frozen Yogurt",
           calories: 159,
@@ -35,40 +43,38 @@ export default {
           protein: 4.0,
           iron: "1",
         },
-        // Add more data rows as needed
+        // Other dessert data...
       ],
+      newColumnName: "", // Added for the new column name
     };
   },
-  computed: {
-    squaredNumber() {
-      return this.originalNumber ** 2;
-    },
-    reversedMessage() {
-      return this.message.split("").reverse().join("");
-    },
-  },
   methods: {
-    increaseNumber() {
-      this.originalNumber++;
-      // Update tableData whenever originalNumber changes
-      this.updateTableData();
-    },
-    updateTableData() {
-      // Update the relevant row(s) in tableData with the new originalNumber value
-      const updatedData = this.tableData.map((item) => ({
-        ...item,
-        name: `Updated Name ${this.originalNumber}`,
-      }));
-      this.tableData = updatedData;
-    },
-    updateHeaders() {
-      // Update tableHeaders with the new name from the input field
-      const newColumnName = this.newName.trim();
-      if (newColumnName !== "") {
-        this.tableHeaders.push({ text: newColumnName, value: newColumnName });
-        this.newName = ""; // Clear the input field
+    addColumnName() {
+      const columnName = this.newColumnName.trim();
+      if (
+        columnName !== "" &&
+        !this.headers.some((header) => header.key === columnName)
+      ) {
+        // Add the new column header
+        this.headers.push({
+          title: columnName,
+          align: "end",
+          key: columnName,
+        });
+
+        // Fill the new column with "test" in desserts data
+        this.desserts.forEach((dessert) => {
+          dessert[columnName] = "test";
+        });
+
+        // Clear the input field
+        this.newColumnName = "";
       }
     },
   },
 };
 </script>
+
+<style scoped>
+/* Add your CSS styles here if needed */
+</style>
