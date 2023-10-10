@@ -2,7 +2,7 @@
   <div>
     <v-text-field
       v-model="newColumnName"
-      label="Enter Name"
+      label="Enter Column Name"
     ></v-text-field>
     <v-btn @click="addColumnName" color="primary">Add Name</v-btn>
 
@@ -12,8 +12,7 @@
       :headers="headers"
       :items="desserts"
       item-value="name"
-      class="elevation-1"
-      style="{ max-width: tableMaxWidth; margin: '0 auto'; 'border-radius': '10px;' overflow: 'hidden' }"
+      :style="{ 'max-width': tableMaxWidth, margin: '0 auto', 'border-radius': '10px', overflow: 'hidden' }"
     ></v-data-table>
   </div>
 </template>
@@ -24,36 +23,19 @@ export default {
     return {
       itemsPerPage: 5,
       headers: [
-        {
-          title: "Dessert (100g serving)",
-          align: "start",
-          sortable: false,
-          key: "name",
-        },
-        { title: "Calories", align: "end", key: "calories" },
-        { title: "Fat (g)", align: "end", key: "fat" },
-        { title: "Carbs (g)", align: "end", key: "carbs" },
-        { title: "Protein (g)", align: "end", key: "protein" },
-        { title: "Iron (%)", align: "end", key: "iron" },
+        // Your existing headers...
       ],
       desserts: [
-        {
-          name: "Frozen Yogurt",
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          iron: "1",
-        },
-        // Other dessert data...
+        // Your existing dessert data...
       ],
       newColumnName: "", // Added for the new column name
     };
   },
   computed: {
-    tableMaxWidth(){
+    // Calculate the maximum width based on the number of columns
+    tableMaxWidth() {
       const numColumns = this.headers.length;
-      const minWidthPerColumn = 150;
+      const minWidthPerColumn = 150; // Adjust this as needed
       const maxWidth = numColumns * minWidthPerColumn + 'px';
       return maxWidth;
     },
@@ -85,4 +67,6 @@ export default {
 };
 </script>
 
-
+<style scoped>
+/* Add your CSS styles here if needed */
+</style>
