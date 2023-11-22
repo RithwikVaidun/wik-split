@@ -33,8 +33,8 @@
           </th>
         </tr>
       </template>
-      <template v-slot:item.name="{ item }">
-        <v-text-field v-model="item.name" color="red"> </v-text-field>
+      <template v-slot:item="{ item }">
+        <v-text-field v-model="item.name" color="red"></v-text-field>
       </template>
     </v-data-table>
   </div>
