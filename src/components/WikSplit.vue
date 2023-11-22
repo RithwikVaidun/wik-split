@@ -27,8 +27,19 @@
       item-value="name"
       class="custom-data-table elevation-1"
     >
+      <template v-slot:[`item.price`]="{ item }">
+        <v-text-field
+          v-model="prices[item.name]"
+          @input="distributePrice(item)"
+          clearable
+          hide-details="auto"
+          label="price"
+        >
+        </v-text-field>
+      </template>
     </v-data-table>
     <v-btn @click="removeColumn('Rithwik')" color="primary">MyTest</v-btn>
+    <v-btn @click="test" color="primary">MyTest</v-btn>
   </div>
 </template>
 
@@ -44,6 +55,7 @@ export default {
           sortable: false,
           key: "name",
         },
+        { title: "Price", align: "end", key: "price" },
         { title: "Rathik", align: "end", key: "Rathik" },
         { title: "Rithwik", align: "end", key: "Rithwik" },
         { title: "Koosh", align: "end", key: "Koosh" },
@@ -53,13 +65,26 @@ export default {
           name: "Frozen Yogurt",
           calories: 159,
           fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          iron: "1",
+        },
+        {
+          name: "Pineapple",
+          calories: 159,
+          fat: 6.0,
+        },
+        {
+          name: "Chicken",
+          calories: 159,
+          fat: 6.0,
+        },
+        {
+          name: "Cuties",
+          calories: 159,
+          fat: 6.0,
         },
         // Other dessert data...
       ],
-      newColumnName: "", // Added for the new column name
+      newColumnName: "",
+      prices: {},
     };
   },
   computed: {
@@ -71,8 +96,26 @@ export default {
     },
   },
   methods: {
+    distributePrice(item) {
+      const enteredPrice = this.prices[item.name];
+
+      // Calculate the distribution among remaining columns
+      const columnsToDistribute = this.headers.filter(
+        (header) => header.key !== "name" && header.key !== "price"
+      );
+
+      const numColumns = columnsToDistribute.length;
+      const distributedValue = enteredPrice / numColumns;
+
+      // Distribute the value among remaining columns
+      columnsToDistribute.forEach((column) => {
+        this.foodItmes.find((foodItem) => foodItem.name === item.name)[
+          column.key
+        ] = distributedValue;
+      });
+    },
     test() {
-      console.log(this.headers);
+      console.log(this.prices["Frozen Yogurt"]);
     },
     removeColumn(columnName) {
       // Remove the column header
