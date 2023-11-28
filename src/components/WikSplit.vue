@@ -38,8 +38,10 @@
         </v-text-field>
       </template>
     </v-data-table>
-    <v-btn @click="removeColumn('Rithwik')" color="primary">MyTest</v-btn>
     <v-btn @click="test" color="primary">MyTest</v-btn>
+
+    <!-- button to add a new row -->
+    <v-btn @click="addRow" color="primary">Add Row</v-btn>
   </div>
 </template>
 
@@ -85,6 +87,7 @@ export default {
       ],
       newColumnName: "",
       prices: {},
+      newFoodItem: {},
     };
   },
   computed: {
@@ -97,9 +100,10 @@ export default {
   },
   methods: {
     distributePrice(item) {
+      console.log(item);
       const enteredPrice = this.prices[item.name];
 
-      // Calculate the distribution among remaining columns
+      // Calculate the num of people (all columns except name and price)
       const columnsToDistribute = this.headers.filter(
         (header) => header.key !== "name" && header.key !== "price"
       );
@@ -109,9 +113,17 @@ export default {
 
       // Distribute the value among remaining columns
       columnsToDistribute.forEach((column) => {
+        const roundedValue = Number(distributedValue.toFixed(2)); // Round to 2 decimal places
         this.foodItmes.find((foodItem) => foodItem.name === item.name)[
           column.key
-        ] = distributedValue;
+        ] = roundedValue;
+      });
+    },
+    addRow(foodItem) {
+      this.foodItmes.push({
+        name: foodItem.name,
+        calories: 159,
+        fat: 6.0,
       });
     },
     test() {
@@ -125,6 +137,7 @@ export default {
       this.foodItmes.forEach((dessert) => {
         delete dessert[columnName];
       });
+      this.distributePrice();
     },
     addColumnName() {
       const columnName = this.newColumnName.trim();
@@ -141,7 +154,7 @@ export default {
 
         // Fill the new column with "test" in foodItmes data
         this.foodItmes.forEach((dessert) => {
-          dessert[columnName] = "test";
+          dessert[columnName] = 0;
         });
 
         // Clear the input field
