@@ -20,27 +20,44 @@
     </v-row>
 
     <!-- Apply styling to center and round the edges -->
-    <v-data-table
-      v-model:items-per-page="itemsPerPage"
-      :headers="headers"
-      :items="foodItmes"
-      item-value="name"
-      class="custom-data-table elevation-1"
-    >
-      <template v-slot:[`item.price`]="{ item }">
-        <v-text-field
-          v-model="prices[item.name]"
-          @input="distributePrice(item)"
-          clearable
-          hide-details="auto"
-          label="price"
-        >
-        </v-text-field>
-      </template>
-    </v-data-table>
+    <table class="custom-data-table elevation-1">
+      <thead>
+        <tr>
+          <th>-----</th>
+          <th>Price</th>
+          <th>Rathik</th>
+          <th>Rithwik</th>
+          <th>Koosh</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(item, index) in foodItems" :key="index">
+          <td>
+            <input
+              type="number"
+              v-model.number="item['price']"
+              @input="distributePrice(item)"
+              placeholder="Price"
+              aria-label="Price"
+            />
+          </td>
+          <td>
+            <input
+              type="text"
+              :value="item.name"
+              @blur="updateItemName(item, $event)"
+              placeholder="Name"
+              aria-label="Name"
+              :ref="'nameField_' + item.name"
+            />
+          </td>
+          <!-- Add columns for Rathik, Rithwik, Koosh -->
+          <!-- Adjust columns based on your requirements -->
+        </tr>
+      </tbody>
+    </table>
     <v-btn @click="test" color="primary">MyTest</v-btn>
 
-    <!-- button to add a new row -->
     <v-btn @click="addRow" color="primary">Add Row</v-btn>
   </div>
 </template>
@@ -62,31 +79,31 @@ export default {
         { title: "Rithwik", align: "end", key: "Rithwik" },
         { title: "Koosh", align: "end", key: "Koosh" },
       ],
-      foodItmes: [
+      foodItems: [
         {
           name: "Frozen Yogurt",
-          calories: 159,
-          fat: 6.0,
+          price: 0,
         },
         {
-          name: "Pineapple",
-          calories: 159,
-          fat: 6.0,
-        },
-        {
-          name: "Chicken",
-          calories: 159,
-          fat: 6.0,
+          name: "Apples",
+          price: 0,
         },
         {
           name: "Cuties",
-          calories: 159,
-          fat: 6.0,
+          price: 0,
+        },
+        {
+          name: "Ice Cream",
+          price: 0,
+        },
+        {
+          name: "",
+          price: 0,
         },
         // Other dessert data...
       ],
+      dataRefreshKey: 0,
       newColumnName: "",
-      prices: {},
       newFoodItem: {},
     };
   },
@@ -99,9 +116,24 @@ export default {
     },
   },
   methods: {
+    test() {
+      console.log(this.foodItems["Frozen Yogurt"]);
+      console.log(this.foodItems);
+    },
+    updateItemName(item) {
+      console.log(item.name);
+      this.dataRefreshKey++;
+      const newName = item.name;
+      this.foodItems = this.foodItems.map((foodItem) => {
+        if (foodItem === item) {
+          return { ...foodItem, name: newName }; // Update the name
+        }
+        return foodItem;
+      });
+    },
     distributePrice(item) {
       console.log(item);
-      const enteredPrice = this.prices[item.name];
+      const enteredPrice = item.price;
 
       // Calculate the num of people (all columns except name and price)
       const columnsToDistribute = this.headers.filter(
@@ -114,27 +146,26 @@ export default {
       // Distribute the value among remaining columns
       columnsToDistribute.forEach((column) => {
         const roundedValue = Number(distributedValue.toFixed(2)); // Round to 2 decimal places
-        this.foodItmes.find((foodItem) => foodItem.name === item.name)[
+        this.foodItems.find((foodItem) => foodItem.name === item.name)[
           column.key
         ] = roundedValue;
       });
     },
+
     addRow(foodItem) {
-      this.foodItmes.push({
+      this.foodItems.push({
         name: foodItem.name,
         calories: 159,
         fat: 6.0,
       });
     },
-    test() {
-      console.log(this.prices["Frozen Yogurt"]);
-    },
+
     removeColumn(columnName) {
       // Remove the column header
       this.headers = this.headers.filter((header) => header.key !== columnName);
 
       // Remove the column data
-      this.foodItmes.forEach((dessert) => {
+      this.foodItems.forEach((dessert) => {
         delete dessert[columnName];
       });
       this.distributePrice();
@@ -152,9 +183,9 @@ export default {
           key: columnName,
         });
 
-        // Fill the new column with "test" in foodItmes data
-        this.foodItmes.forEach((dessert) => {
-          dessert[columnName] = 0;
+        // Fill the new column with "test" in foodItems data
+        this.foodItems.forEach((dessert) => {
+          dessert[columnName] = "";
         });
 
         // Clear the input field
