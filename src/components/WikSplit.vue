@@ -7,57 +7,57 @@
         <v-text-field v-model="newColumnName" label="Enter Name"></v-text-field>
       </v-col>
       <v-col cols="2">
-        <v-btn @click="addColumnName" color="primary">Add Name</v-btn>
+        <v-btn @click="addName" color="primary">Add Name</v-btn>
       </v-col>
     </v-row>
 
-    <v-row class="justify-center">
+    <!-- <v-row class="justify-center">
       <v-col v-for="(header, index) in headers" :key="index" cols="1">
         <v-btn @click="removeColumn(header.key)" color="error" small>{{
           header.text
         }}</v-btn>
       </v-col>
-    </v-row>
+    </v-row> -->
 
     <!-- Apply styling to center and round the edges -->
-    <table class="custom-data-table elevation-1">
+    <table class="custom-data-table elevation-1 equal-width-table">
       <thead>
         <tr>
-          <th>-----</th>
+          <th>Item</th>
           <th>Price</th>
-          <th>Rathik</th>
-          <th>Rithwik</th>
-          <th>Koosh</th>
+          <th v-for="(person, index) in members" :key="index">
+            {{ person.name }}
+            <v-btn
+              size="x-small"
+              icon="mdi-trash-can-outline"
+              @click="removeMember(person.name)"
+              color="red"
+              small
+            ></v-btn>
+          </th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(item, index) in foodItems" :key="index">
+          <td>
+            <input type="text" v-model="item.name" placeholder="Name" />
+          </td>
           <td>
             <input
               type="number"
               v-model.number="item['price']"
               @input="distributePrice(item)"
               placeholder="Price"
-              aria-label="Price"
             />
           </td>
-          <td>
-            <input
-              type="text"
-              :value="item.name"
-              @blur="updateItemName(item, $event)"
-              placeholder="Name"
-              aria-label="Name"
-              :ref="'nameField_' + item.name"
-            />
+          <td v-for="(person, key) in members" :key="key">
+            {{ person.payments[index] }}
           </td>
-          <!-- Add columns for Rathik, Rithwik, Koosh -->
-          <!-- Adjust columns based on your requirements -->
         </tr>
       </tbody>
     </table>
-    <v-btn @click="test" color="primary">MyTest</v-btn>
 
+    <v-btn @click="test" color="primary">Test</v-btn>
     <v-btn @click="addRow" color="primary">Add Row</v-btn>
   </div>
 </template>
@@ -67,42 +67,33 @@ export default {
   data() {
     return {
       itemsPerPage: 5,
-      headers: [
-        {
-          title: "-----",
-          align: "start",
-          sortable: false,
-          key: "name",
-        },
-        { title: "Price", align: "end", key: "price" },
-        { title: "Rathik", align: "end", key: "Rathik" },
-        { title: "Rithwik", align: "end", key: "Rithwik" },
-        { title: "Koosh", align: "end", key: "Koosh" },
+      members: [
+        { name: "Rathik", payments: [] },
+        { name: "Rithwik", payments: [] },
+        { name: "Koosh", payments: [] },
       ],
       foodItems: [
         {
           name: "Frozen Yogurt",
-          price: 0,
+          price: 8,
+          index: 0,
         },
         {
           name: "Apples",
-          price: 0,
+          price: 4,
+          index: 1,
         },
         {
           name: "Cuties",
-          price: 0,
+          price: 9,
+          index: 2,
         },
         {
           name: "Ice Cream",
-          price: 0,
+          price: 12,
+          index: 3,
         },
-        {
-          name: "",
-          price: 0,
-        },
-        // Other dessert data...
       ],
-      dataRefreshKey: 0,
       newColumnName: "",
       newFoodItem: {},
     };
@@ -114,98 +105,80 @@ export default {
       const maxWidth = numColumns * minWidthPerColumn + "px";
       return maxWidth;
     },
+    numColumns() {
+      return this.headers.length;
+    },
   },
   methods: {
     test() {
       console.log(this.foodItems["Frozen Yogurt"]);
       console.log(this.foodItems);
     },
-    updateItemName(item) {
-      console.log(item.name);
-      this.dataRefreshKey++;
-      const newName = item.name;
-      this.foodItems = this.foodItems.map((foodItem) => {
-        if (foodItem === item) {
-          return { ...foodItem, name: newName }; // Update the name
-        }
-        return foodItem;
-      });
-    },
     distributePrice(item) {
-      console.log(item);
-      const enteredPrice = item.price;
-
-      // Calculate the num of people (all columns except name and price)
-      const columnsToDistribute = this.headers.filter(
-        (header) => header.key !== "name" && header.key !== "price"
-      );
-
-      const numColumns = columnsToDistribute.length;
-      const distributedValue = enteredPrice / numColumns;
-
-      // Distribute the value among remaining columns
-      columnsToDistribute.forEach((column) => {
-        const roundedValue = Number(distributedValue.toFixed(2)); // Round to 2 decimal places
-        this.foodItems.find((foodItem) => foodItem.name === item.name)[
-          column.key
-        ] = roundedValue;
-      });
+      console.log("ITEM", item);
+      const pricePerPerson = item.price / this.members.length;
+      for (let person in this.members) {
+        this.members[person].payments[item.index] = pricePerPerson;
+      }
     },
 
     addRow(foodItem) {
       this.foodItems.push({
         name: foodItem.name,
-        calories: 159,
-        fat: 6.0,
+        price: 159,
+        index: 4,
       });
     },
 
-    removeColumn(columnName) {
-      // Remove the column header
-      this.headers = this.headers.filter((header) => header.key !== columnName);
-
-      // Remove the column data
-      this.foodItems.forEach((dessert) => {
-        delete dessert[columnName];
-      });
-      this.distributePrice();
-    },
-    addColumnName() {
-      const columnName = this.newColumnName.trim();
-      if (
-        columnName !== "" &&
-        !this.headers.some((header) => header.key === columnName)
-      ) {
-        // Add the new column header
-        this.headers.push({
-          title: columnName,
-          align: "end",
-          key: columnName,
-        });
-
-        // Fill the new column with "test" in foodItems data
-        this.foodItems.forEach((dessert) => {
-          dessert[columnName] = "";
-        });
-
-        // Clear the input field
-        this.newColumnName = "";
+    removeMember(memberName) {
+      this.members = this.members.filter(
+        (member) => member.name !== memberName
+      );
+      for (let item in this.foodItems) {
+        this.distributePrice(this.foodItems[item]);
       }
+    },
+
+    addName() {
+      this.members.push({
+        name: this.newColumnName,
+        payments: [],
+      });
+      this.newColumnName = "";
+      for (let item in this.foodItems) {
+        this.distributePrice(this.foodItems[item]);
+      }
+      //distribute price
     },
   },
 };
 </script>
 <style scoped>
-.custom-data-table {
-  width: 80%; /* Set the desired width */
-  margin: 20px auto; /* Center the table */
-  border: 1px solid #ccc; /* Add border */
-  border-radius: 8px; /* Round the edges */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+/* ...existing styles... */
+
+.equal-width-table {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+  --num-columns: var(
+    --num-columns
+  ); /* Set the number of columns using CSS variable */
+  border-collapse: collapse; /* Ensure borders collapse properly */
 }
 
-/* Override the default elevation styles */
-.custom-data-table.elevation-1 {
-  box-shadow: none;
+.equal-width-table th,
+.equal-width-table td {
+  border: 1px solid #ccc; /* Add border to table cells */
+  padding: 8px; /* Add padding for better readability */
+}
+
+.equal-width-table th {
+  width: calc(
+    100% / var(--num-columns)
+  ); /* Calculate width based on the number of columns */
+}
+
+.equal-width-table tr:last-child td {
+  border-bottom: none; /* Remove bottom border for last row */
 }
 </style>
