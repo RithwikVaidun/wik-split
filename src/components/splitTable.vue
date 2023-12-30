@@ -1,6 +1,7 @@
 <!-- eslint-disable -->
 
 <template>
+  <h1>Split Table</h1>
   <div>
     <v-row class="justify-center">
       <v-col cols="5">
@@ -38,7 +39,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item, index) in foodItems" :key="index">
+        <tr v-for="(item, i) in foodItems" :key="i">
+          <!-- <h3>{{ i }}</h3> -->
           <td>
             <input type="text" v-model="item.name" placeholder="Name" />
           </td>
@@ -51,12 +53,26 @@
             />
           </td>
           <td v-for="(person, key) in members" :key="key">
-            {{ person.payments[index] }}
+            {{ person.payments[item.name] }}
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input v-model="newItem.name" type="text" placeholder="New Name" />
+          </td>
+          <td>
+            <input
+              v-model.number="newItem.price"
+              type="number"
+              placeholder="New Price"
+              @blur="handleNewItem"
+            />
           </td>
         </tr>
       </tbody>
     </table>
 
+    <router-link to="/splitTable">My Test</router-link>
     <v-btn @click="test" color="primary">Test</v-btn>
     <v-btn @click="addRow" color="primary">Add Row</v-btn>
   </div>
@@ -68,34 +84,30 @@ export default {
     return {
       itemsPerPage: 5,
       members: [
-        { name: "Rathik", payments: [] },
-        { name: "Rithwik", payments: [] },
-        { name: "Koosh", payments: [] },
+        { name: "Rathik", payments: {} },
+        { name: "Rithwik", payments: {} },
+        { name: "Koosh", payments: {} },
       ],
       foodItems: [
         {
           name: "Frozen Yogurt",
           price: 8,
-          index: 0,
         },
         {
           name: "Apples",
           price: 4,
-          index: 1,
         },
         {
           name: "Cuties",
           price: 9,
-          index: 2,
         },
         {
           name: "Ice Cream",
           price: 12,
-          index: 3,
         },
       ],
       newColumnName: "",
-      newFoodItem: {},
+      newItem: {},
     };
   },
   computed: {
@@ -118,7 +130,16 @@ export default {
       console.log("ITEM", item);
       const pricePerPerson = item.price / this.members.length;
       for (let person in this.members) {
-        this.members[person].payments[item.index] = pricePerPerson;
+        this.members[person].payments[item.name] = pricePerPerson;
+      }
+    },
+    handleNewItem() {
+      if (this.newItem.name && this.newItem.price !== null) {
+        this.foodItems.push({ ...this.newItem });
+        this.newItem = {
+          name: "",
+          price: null,
+        };
       }
     },
 
