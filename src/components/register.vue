@@ -3,10 +3,18 @@
 
   <form @submit.prevent="register">
     <!-- Your form fields for email and password -->
-    <input type="email" v-model="email" placeholder="Email" required />
-    <input type="password" v-model="password" placeholder="Password" required />
-    <button @click="register">Create Account</button>
-    <button @click="signInWithGoogle">Sign in with Google</button>
+    <v-text-field v-model="email" label="Email" required></v-text-field>
+    <v-text-field v-model="name" label="Name" required></v-text-field>
+    <v-text-field
+      v-model="password"
+      label="Password"
+      type="password"
+      required
+    ></v-text-field>
+
+    <v-btn @click="register">Create Account</v-btn>
+    <v-btn @click="signInWithGoogle">Sign in with Google</v-btn>
+    <v-btn @click="test">Test</v-btn>
   </form>
 </template>
 
@@ -19,6 +27,8 @@ import {
 } from "firebase/auth";
 
 import { auth } from "../firebase";
+import axios from "axios";
+
 export default {
   data() {
     return {
@@ -26,6 +36,7 @@ export default {
       newItem: {},
       email: "",
       password: "",
+      name: "",
     };
   },
   methods: {
@@ -36,10 +47,19 @@ export default {
         const result = await signInWithPopup(auth, provider);
         // Successful sign-in
         console.log("User signed in:", result.user);
-        // You can redirect the user or perform other actions here
+        await axios.post("http://192.168.1.39:8081/add_user", {
+          email: this.email,
+          name: this.name,
+          // Other user data you want to send
+        });
+        //redirect to home page
+        this.$router.push("/");
       } catch (error) {
         console.error("Error signing in with Google:", error);
       }
+    },
+    async test() {
+      console.log(this.email, this.name);
     },
     async register() {
       try {
@@ -48,33 +68,19 @@ export default {
           this.email,
           this.password
         );
+        await axios.post("http://192.168.1.39:8081/add_user", {
+          email: this.email,
+          name: this.name,
+          // Other user data you want to send
+        });
+        //redirect to home page
+        this.$router.push("/");
         // User account successfully created!
         console.log("User registered:", userCredential.user);
         // You may want to redirect the user to another page after successful registration
       } catch (error) {
         console.error("Error creating account:", error);
       }
-    },
-    test() {
-      console.log(this.foodItems["Frozen Yogurt"]);
-      console.log(this.foodItems);
-    },
-    handleNewItem() {
-      if (this.newItem.name && this.newItem.price !== null) {
-        this.foodItems.push({ ...this.newItem });
-        this.newItem = {
-          name: "",
-          price: null,
-        };
-      }
-    },
-
-    addRow(foodItem) {
-      this.foodItems.push({
-        name: foodItem.name,
-        price: 159,
-        index: 4,
-      });
     },
   },
 };

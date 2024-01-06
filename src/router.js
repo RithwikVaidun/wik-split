@@ -4,10 +4,16 @@ import { createRouter, createWebHistory } from 'vue-router';
 import reciept from './components/receipt.vue';
 import splitTable from './components/splitTable.vue';
 import register from './components/register.vue';
+import home from './components/home.vue';
 
 
 const routes = [
   // Define your routes here
+  {
+    path: '/',
+    name: 'home',
+    component: home
+  },
   {
     path: '/',
     name: 'reciept',
