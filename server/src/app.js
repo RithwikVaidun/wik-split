@@ -12,7 +12,7 @@ app.use(cors())
 
 // MySQL database connection configuration
 const connection = mysql.createConnection({
-    host: 'localhost',
+    host: '3.145.169.66',
     user: 'root',
     password: 'junkrat123',
     database: 'wikSplit'
@@ -40,9 +40,9 @@ const connection = mysql.createConnection({
   
   // add user
   app.post('/add_user', (req, res) => {
-    const { name, email } = req.body;
-    console.log(req.query);
-    const INSERT_USER_QUERY = `INSERT INTO Users (name, email) VALUES('${name}', '${email}')`;
+    const { user_id, name, email } = req.body;
+    console.log("reqBODY",req.body);
+    const INSERT_USER_QUERY = `INSERT INTO Users (user_id, name, email) VALUES('${user_id}', '${name}', '${email}')`;
     connection.query(INSERT_USER_QUERY, (err, results) => {
       if (err) {
         console.error('Error inserting user to MySQL:', err);
@@ -86,6 +86,49 @@ app.post('/create_group', (req, res) => {
     });
 });
 
+app.get('/get_groups', (req, res) => {
+  user_id = req.query.user_id;
+  console.log("USER ID BACKEND",  user_id)
+  const query = `SELECT * FROM GroupUsers WHERE user_id = ?`;
+  connection.query(query, [user_id], (error, results) => {
+    if (error) {
+      console.error('Error fetching groups:', error);
+      res.status(500).json({ error: 'Error fetching groups' });
+    } else {
+      var groups = []
+      for(var i = 0; i < results.length; i++){
+        groups.push(results[i].group_id)
+      }
+      console.log("groups:", groups)
+      const groupNamesQuery = `SELECT group_name FROM \`Groups\` WHERE group_id IN (${groups.join(', ')}) `;
+      connection.query(groupNamesQuery, (error, results) => {
+        if (error) {
+          console.error('Error fetching groups:', error);
+          res.status(500).json({ error: 'Error fetching groups' });
+        } else {
+          console.log("GROUP NAMES:", results)
+          // res.json(results); // Send the fetched user data as JSON response
+        }
+      });
+
+      names = []
+
+      const namesInEachGroupQuery = 'SELECT user_id FROM GroupUsers WHERE group_id IN (' + groups.join(', ') + ') GROUP BY group_id, user_id';
+      connection.query(namesInEachGroupQuery, (error, results) => {
+        if (error) {
+          console.error('Error fetching groups:', error);
+          res.status(500).json({ error: 'Error fetching groups' });
+        } else {
+          console.log("GROUP NAMES MAGICYA:", results)
+          // res.json(results); // Send the fetched user data as JSON response
+        }
+      });
+      
+
+      res.json(results); // Send the fetched user data as JSON response
+    }
+  });
+});
 
 app.get('/status', (req, res) => {
   res.send({

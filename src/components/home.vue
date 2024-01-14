@@ -3,6 +3,19 @@
 <template>
   <h1>Home</h1>
   <h3>My Groups</h3>
+
+  <v-card v-for="(group, index) in groups" outlined class="name-list">
+    <v-card-title>List of Names</v-card-title>
+    <v-card-text>
+      <v-list dense>
+        <v-list-item v-for="(name, index) in group.names" :key="index">
+          <v-list-item-content>
+            <v-list-item-title>{{ name }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-card-text>
+  </v-card>
   <div>
     <v-card>
       <v-card-title class="text-h5"> Create Group </v-card-title>
@@ -38,39 +51,22 @@
     </v-dialog>
 
     <v-btn @click="test" color="primary">Test</v-btn>
+    <v-btn @click="getGroups" color="primary">getGroups</v-btn>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import { auth } from "../firebase";
 
 export default {
   data() {
     return {
-      dialog: false,
-      itemsPerPage: 5,
-      foodItems: [
-        {
-          name: "Frozen Yogurt",
-          price: 8,
-        },
-        {
-          name: "Apples",
-          price: 4,
-        },
-        {
-          name: "Cuties",
-          price: 9,
-        },
-        {
-          name: "Ice Cream",
-          price: 12,
-        },
-      ],
       groupName: "test",
       newItem: {},
       users: [],
-      selectedGroup: [1, 3],
+      selectedGroup: [],
+      groups: {},
     };
   },
   created() {
@@ -81,18 +77,27 @@ export default {
     async fetchUsers() {
       try {
         const response = await axios.get("http://192.168.1.39:8081/get_users");
-        console.log(response.data);
+        // console.log(response.data);
         this.users = response.data; // Assign fetched users to the 'users' data property
       } catch (error) {
         console.error("Error fetching users:", error);
         // Handle error
       }
     },
+    async getGroups() {
+      const user_id = auth.currentUser.uid;
+      console.log("user_id FRONT END", user_id);
+      const response = await axios.get("http://192.168.1.39:8081/get_groups", {
+        params: {
+          user_id: user_id,
+        },
+      });
+      console.log("response of get groups", response.data);
+    },
     test() {
-      for (let i = 0; i < this.selectedGroup.length; i++) {
-        console.log(this.selectedGroup[i]);
-      }
-      console.log(this.selectedGroup);
+      console.log("SUERS", this.users);
+      // console.log(auth.currentUser);
+      // console.log(auth.currentUser.uid);
     },
     async createGroup() {
       console.log("create group::", this.selectedGroup, this.groupName);

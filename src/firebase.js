@@ -3,7 +3,6 @@ import { getAuth } from "firebase/auth";
 
 
 import "@firebase/firestore";
-import { getFirestore } from "firebase/firestore";
 const firebaseConfig = {
   apiKey: "AIzaSyDTZLl0m38_soSDtYHH2XgalRwBzfR7LH4",
   authDomain: "wiksplit.firebaseapp.com",
@@ -19,4 +18,3 @@ export default app;
 
 export const auth = getAuth(app);
 
-export const db = getFirestore();
