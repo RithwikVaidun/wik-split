@@ -135,4 +135,6 @@ app.get('/status', (req, res) => {
     message: 'hello world!'
   })
 })
-app.listen(process.env.PORT || 8081)
+app.listen(8081, () => {
+  console.log(`Server started on port 8081`)
+})
