@@ -71,7 +71,7 @@ export default {
   },
   created() {
     // Fetch users when the component is created
-    this.fetchUsers();
+    // this.fetchUsers();
   },
   methods: {
     async fetchUsers() {
@@ -94,10 +94,16 @@ export default {
       });
       console.log("response of get groups", response.data);
     },
-    test() {
-      console.log("SUERS", this.users);
-      // console.log(auth.currentUser);
-      // console.log(auth.currentUser.uid);
+    async test() {
+      console.log("called test");
+      try {
+        const response = await axios.get("3.145.169.66:8081/get_users");
+        // console.log(response.data);
+        this.users = response.data; // Assign fetched users to the 'users' data property
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        // Handle error
+      }
     },
     async createGroup() {
       console.log("create group::", this.selectedGroup, this.groupName);

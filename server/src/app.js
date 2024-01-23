@@ -11,21 +11,21 @@ app.use(bodyParser.json())
 app.use(cors())
 
 // MySQL database connection configuration
-// const connection = mysql.createConnection({
-//     host: '3.145.169.66',
-//     user: 'root',
-//     password: 'junkrat123',
-//     database: 'wikSplit'
-// });
+const connection = mysql.createConnection({
+    host: '3.145.169.66',
+    user: 'username',
+    password: 'password',
+    database: 'wikSplit'
+});
   
   // Connect to MySQL
-  // connection.connect((err) => {
-  //   if (err) {
-  //     console.error('Error connecting to MySQL:', err);
-  //     return;
-  //   }
-  //   console.log('Connected to MySQL database!');
-  // });
+  connection.connect((err) => {
+    if (err) {
+      console.error('Error connecting to MySQL:', err);
+      return;
+    }
+    console.log('Connected to MySQL database!');
+  });
 
   app.get('/get_users', (req, res) => {
     connection.query('SELECT * FROM Users', (error, results) => {
