@@ -2,7 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 
 const app = express()
@@ -16,8 +16,7 @@ const connection = mysql.createConnection({
     user: 'username',
     password: 'password',
     database: 'wikSplit',
-    authPlugin: 'junkrat123'
-});
+  });
   
   // Connect to MySQL
   connection.connect((err) => {
