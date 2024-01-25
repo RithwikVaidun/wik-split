@@ -94,16 +94,9 @@ export default {
       });
       console.log("response of get groups", response.data);
     },
-    async test() {
+    test() {
       console.log("called test");
-      try {
-        const response = await axios.get("3.145.169.66:8081/get_users");
-        // console.log(response.data);
-        this.users = response.data; // Assign fetched users to the 'users' data property
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        // Handle error
-      }
+      console.log(process.env.VUE_APP_LOCALHOST);
     },
     async createGroup() {
       console.log("create group::", this.selectedGroup, this.groupName);
