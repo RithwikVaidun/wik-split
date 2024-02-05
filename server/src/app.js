@@ -13,8 +13,8 @@ app.use(cors())
 // MySQL database connection configuration
 const connection = mysql.createConnection({
     host: '3.15.210.248',
-    user: 'username',
-    password: 'password',
+    user: 'root',
+    password: 'junkrat123',
     database: 'wikSplit',
   });
   
@@ -28,7 +28,7 @@ const connection = mysql.createConnection({
   });
 
   app.get('/get_users', (req, res) => {
-    console.log
+    console.log('hi')
     connection.query('SELECT * FROM Users', (error, results) => {
       if (error) {
         console.error('Error fetching users:', error);

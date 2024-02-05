@@ -76,9 +76,10 @@ export default {
   methods: {
     async fetchUsers() {
       try {
-        const response = await axios.get("http://192.168.1.39:8081/get_users");
+        const response = await axios.get("http://3.15.210.248:8081/get_users");
         // console.log(response.data);
         this.users = response.data; // Assign fetched users to the 'users' data property
+        console.log(this.users);
       } catch (error) {
         console.error("Error fetching users:", error);
         // Handle error
@@ -96,6 +97,7 @@ export default {
     },
     test() {
       console.log("called test");
+      this.fetchUsers();
       console.log(process.env.VUE_APP_LOCALHOST);
     },
     async createGroup() {
