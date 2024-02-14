@@ -46,9 +46,10 @@ export default {
       try {
         const result = await signInWithPopup(auth, provider);
         console.log("User signed in uid:", result.user.uid);
-        // Successful sign-in
-        console.log("User signed in:", result.user);
-        await axios.post("http://192.168.1.39:8081/add_user", {
+        // console.log("User signed in:", result.user);
+        console.log(process.env.VUE_APP_LOCALHOST);
+
+        await axios.post(`${process.env.VUE_APP_LOCALHOST}/add_user`, {
           user_id: result.user.uid,
           name: this.name,
           email: this.email,
