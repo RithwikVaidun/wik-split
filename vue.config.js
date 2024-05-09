@@ -4,7 +4,10 @@ module.exports = defineConfig({
 
   pluginOptions: {
     vuetify: {
-			// https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vuetify-loader
-		}
+      // Custom theme configuration, if needed
+      theme: {
+        dark: true, // Change to true if you want to enable dark mode
+      },
+    },
   }
 })

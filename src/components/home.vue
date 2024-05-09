@@ -4,54 +4,39 @@
   <h1>Home</h1>
   <h3>My Groups</h3>
 
-  <v-card v-for="(group, index) in groups" outlined class="name-list">
-    <v-card-title>List of Names</v-card-title>
-    <v-card-text>
-      <v-list dense>
-        <v-list-item v-for="(name, index) in group.names" :key="index">
-          <v-list-item-content>
+  <div class="name-list-container">
+    <v-card v-for="(group, title) in groups" outlined class="name-list" :key="title">
+      <v-card-title>{{ title }}</v-card-title>
+      <v-card-text>
+        <v-list dense>
+          <v-list-item v-for="name in group" :key="name">
             <v-list-item-title>{{ name }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-card-text>
-  </v-card>
-  <div>
-    <v-card>
-      <v-card-title class="text-h5"> Create Group </v-card-title>
-      <v-card-text
-        >Let Google help apps determine location. This means sending anonymous
-        location data to Google, even when no apps are running.</v-card-text
-      >
-      <v-select
-        v-model="selectedGroup"
-        label="Select"
-        :items="users"
-        item-title="name"
-        item-value="user_id"
-        multiple
-      ></v-select>
-      <v-text-field
-        v-model="groupName"
-        label="Group Name"
-        required
-      ></v-text-field>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="createGroup"
-          >Create Group</v-btn
-        >
-      </v-card-actions>
+          </v-list-item>
+        </v-list>
+      </v-card-text>
     </v-card>
+  </div>
+  <div>
 
-    <v-dialog v-model="dialog" width="auto">
+
+    <v-dialog v-model="dialog" max-width="600">
       <template v-slot:activator="{ props }">
-        <v-btn color="primary" v-bind="props"> Open Dialog </v-btn>
+        <v-btn color="primary" v-bind="props"> Create Group </v-btn>
       </template>
+      <v-card>
+        <v-card-title> Create Group </v-card-title>
+
+        <v-select v-model="selectedGroup" label="Selec Group Members" :items="filteredUsers(users)" item-title="name"
+          item-value="user_id" multiple></v-select>
+        <v-text-field v-model="groupName" label="Group Name" required></v-text-field>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="createGroup">Create Group</v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
 
-    <v-btn @click="test" color="primary">Test</v-btn>
-    <v-btn @click="getGroups" color="primary">getGroups</v-btn>
+    <v-btn @click="quickSplit" color="primary">Quick Split</v-btn>
   </div>
 </template>
 
@@ -62,21 +47,23 @@ import { auth } from "../firebase";
 export default {
   data() {
     return {
-      groupName: "test",
+      groupName: "",
       newItem: {},
       users: [],
       selectedGroup: [],
       groups: {},
+      dialog: false,
     };
   },
   created() {
     // Fetch users when the component is created
-    // this.fetchUsers();
+    this.fetchUsers();
+    this.fetchGroups();
   },
   methods: {
     async fetchUsers() {
       try {
-        const response = await axios.get("http://3.15.210.248:8081/get_users");
+        const response = await axios.get(`${process.env.VUE_APP_LOCALHOST}/get_users`);
         // console.log(response.data);
         this.users = response.data; // Assign fetched users to the 'users' data property
         console.log(this.users);
@@ -85,78 +72,62 @@ export default {
         // Handle error
       }
     },
-    async getGroups() {
+    async fetchGroups() {
       const user_id = auth.currentUser.uid;
-      console.log("user_id FRONT END", user_id);
-      const response = await axios.get("http://192.168.1.39:8081/get_groups", {
+      const response = await axios.get(`${process.env.VUE_APP_LOCALHOST}/get_groups`, {
         params: {
           user_id: user_id,
         },
       });
       console.log("response of get groups", response.data);
+      for (let i = 0; i < response.data.length; i++) {
+        const names = await axios.get(`${process.env.VUE_APP_LOCALHOST}/get_group_names`, {
+          params: {
+            group_id: response.data[i]["group_id"],
+          },
+        });
+        this.groups[response.data[i]["group_name"]] = names.data.map((obj) => obj.name);
+      }
+      console.log("groups", this.groups);
+    },
+    filteredUsers(users) {
+      return users.filter((user) => user.user_id !== auth.currentUser.uid);
+    },
+    async quickSplit() {
+      console.log("quick split");
+      //route to /receipts
+      this.$router.push("/receipt");
     },
     test() {
       console.log("called test");
-      this.fetchUsers();
-      console.log(process.env.VUE_APP_LOCALHOST);
+
     },
     async createGroup() {
       console.log("create group::", this.selectedGroup, this.groupName);
-      await axios.post("http://192.168.1.39:8081/create_group", {
-        groupIDS: this.selectedGroup,
+      let ids = [...this.selectedGroup];
+      // Push the current user's ID to the copied array
+      ids.push(auth.currentUser.uid);
+      await axios.post(`${process.env.VUE_APP_LOCALHOST}/create_group`, {
+        groupIDS: ids,
         groupName: this.groupName,
       });
-      try {
-        console.log("ij");
-      } catch (error) {
-        console.error("Error creating group:", error);
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          console.error("Response data:", error.response.data);
-          console.error("Response status:", error.response.status);
-          console.error("Response headers:", error.response.headers);
-        } else if (error.request) {
-          // The request was made but no response was received
-          console.error(
-            "No response received. Request details:",
-            error.request
-          );
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          console.error("Error setting up the request:", error.message);
-        }
-      }
+      this.dialog = false;
+      this.fetchGroups();
     },
   },
 };
 </script>
+
 <style scoped>
-/* ...existing styles... */
-
-.equal-width-table {
-  display: table;
-  table-layout: fixed;
-  width: 100%;
-  --num-columns: var(
-    --num-columns
-  ); /* Set the number of columns using CSS variable */
-  border-collapse: collapse; /* Ensure borders collapse properly */
+.name-list-container {
+  display: flex;
+  justify-content: space-around;
 }
 
-.equal-width-table th,
-.equal-width-table td {
-  border: 1px solid #ccc; /* Add border to table cells */
-  padding: 8px; /* Add padding for better readability */
-}
-
-.equal-width-table th {
-  width: calc(
-    100% / var(--num-columns)
-  ); /* Calculate width based on the number of columns */
-}
-
-.equal-width-table tr:last-child td {
-  border-bottom: none; /* Remove bottom border for last row */
+.name-list {
+  width: 300px;
+  margin: 10px;
+  border: 4px solid black;
+  /* Thicker black border */
 }
 </style>

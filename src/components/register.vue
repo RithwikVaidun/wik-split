@@ -5,16 +5,14 @@
     <!-- Your form fields for email and password -->
     <v-text-field v-model="email" label="Email" required></v-text-field>
     <v-text-field v-model="name" label="Name" required></v-text-field>
-    <v-text-field
-      v-model="password"
-      label="Password"
-      type="password"
-      required
-    ></v-text-field>
+    <v-text-field v-model="password" label="Password" type="password" required></v-text-field>
+
+    <p v-if="errorMessage" style="color: red;">{{ errorMessage }}</p>
 
     <v-btn @click="register">Create Account</v-btn>
     <v-btn @click="signInWithGoogle">Sign in with Google</v-btn>
     <v-btn @click="test">Test</v-btn>
+
   </form>
 </template>
 
@@ -37,6 +35,7 @@ export default {
       email: "",
       password: "",
       name: "",
+      errorMessage: "",
     };
   },
   methods: {
@@ -44,6 +43,10 @@ export default {
       const provider = new GoogleAuthProvider();
 
       try {
+        if (!this.name || !this.email) {
+          this.errorMessage = "Name and email are required";
+          return;
+        }
         const result = await signInWithPopup(auth, provider);
         console.log("User signed in uid:", result.user.uid);
         // console.log("User signed in:", result.user);
@@ -62,17 +65,23 @@ export default {
       }
     },
     async test() {
-      console.log(this.email, this.name);
+      await axios.post(`${process.env.VUE_APP_LOCALHOST}/add_user`, {
+        user_id: 11231,
+        name: "A Name",
+        email: "email",
+        // Other user data you want to send
+      });
     },
     async register() {
       try {
+
         const userCredential = await createUserWithEmailAndPassword(
           auth,
           this.email,
           this.password
         );
         console.log("user Credential.user.uid", userCredential.user.uid);
-        await axios.post("http://192.168.1.39:8081/add_user", {
+        await axios.post(`${process.env.VUE_APP_LOCALHOST}/add_user`, {
           user_id: userCredential.user.uid,
           email: this.email,
           name: this.name,

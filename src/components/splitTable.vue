@@ -12,15 +12,7 @@
       </v-col>
     </v-row>
 
-    <!-- <v-row class="justify-center">
-      <v-col v-for="(header, index) in headers" :key="index" cols="1">
-        <v-btn @click="removeColumn(header.key)" color="error" small>{{
-          header.text
-        }}</v-btn>
-      </v-col>
-    </v-row> -->
 
-    <!-- Apply styling to center and round the edges -->
     <table class="custom-data-table elevation-1 equal-width-table">
       <thead>
         <tr>
@@ -28,13 +20,8 @@
           <th>Price</th>
           <th v-for="(person, index) in members" :key="index">
             {{ person.name }}
-            <v-btn
-              size="x-small"
-              icon="mdi-trash-can-outline"
-              @click="removeMember(person.name)"
-              color="red"
-              small
-            ></v-btn>
+            <v-btn size="x-small" icon="mdi-trash-can-outline" @click="removeMember(person.name)" color="red"
+              small></v-btn>
           </th>
         </tr>
       </thead>
@@ -45,12 +32,7 @@
             <input type="text" v-model="item.name" placeholder="Name" />
           </td>
           <td>
-            <input
-              type="number"
-              v-model.number="item['price']"
-              @input="distributePrice(item)"
-              placeholder="Price"
-            />
+            <input type="number" v-model.number="item['price']" @input="distributePrice(item)" placeholder="Price" />
           </td>
           <td v-for="(person, key) in members" :key="key">
             {{ person.payments[item.name] }}
@@ -61,12 +43,7 @@
             <input v-model="newItem.name" type="text" placeholder="New Name" />
           </td>
           <td>
-            <input
-              v-model.number="newItem.price"
-              type="number"
-              placeholder="New Price"
-              @blur="handleNewItem"
-            />
+            <input v-model.number="newItem.price" type="number" placeholder="New Price" @blur="handleNewItem" />
           </td>
         </tr>
       </tbody>
@@ -181,25 +158,27 @@ export default {
   display: table;
   table-layout: fixed;
   width: 100%;
-  --num-columns: var(
-    --num-columns
-  ); /* Set the number of columns using CSS variable */
-  border-collapse: collapse; /* Ensure borders collapse properly */
+  --num-columns: var(--num-columns);
+  /* Set the number of columns using CSS variable */
+  border-collapse: collapse;
+  /* Ensure borders collapse properly */
 }
 
 .equal-width-table th,
 .equal-width-table td {
-  border: 1px solid #ccc; /* Add border to table cells */
-  padding: 8px; /* Add padding for better readability */
+  border: 1px solid #ccc;
+  /* Add border to table cells */
+  padding: 8px;
+  /* Add padding for better readability */
 }
 
 .equal-width-table th {
-  width: calc(
-    100% / var(--num-columns)
-  ); /* Calculate width based on the number of columns */
+  width: calc(100% / var(--num-columns));
+  /* Calculate width based on the number of columns */
 }
 
 .equal-width-table tr:last-child td {
-  border-bottom: none; /* Remove bottom border for last row */
+  border-bottom: none;
+  /* Remove bottom border for last row */
 }
 </style>
